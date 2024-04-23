@@ -21,12 +21,6 @@ class SchoolController : MonoBehaviour
     [SerializeField] Transform prefab = null;
     [SerializeField] float2 spawnRange = new(5, 10);
 
-    /// <summary>
-    /// Array of entities representing a single fish. Stores values for position, velocity, and
-    /// will later also store weight data, etc.
-    /// </summary>
-    SchoolBoid[] entities;
-
     // Remove this later.
     int frameCount = 0;
 
@@ -35,7 +29,13 @@ class SchoolController : MonoBehaviour
     Material instanceMaterial;
     Transform[] transforms;
 
-    // Native arrays for jobs.
+    /// <summary>
+    /// Array of entities representing a single fish. Stores values for position, velocity, and
+    /// will later also store weight data, etc.
+    /// </summary>
+    SchoolBoid[] entities;
+
+    // Native containers for jobs.
     NativeArray<float3> positions;
     NativeArray<float3> velocities;
     NativeArray<float> detectRadii;
@@ -47,8 +47,6 @@ class SchoolController : MonoBehaviour
     NativeArray<float> steerForces;
     NativeArray<float> maxSpeeds;
     NativeArray<float3> accelerations;
-
-    RaycastHit[] collisionAvoidanceBuffer = new RaycastHit[1];
 
     /// <summary>
     /// If mesh instancing is enabled and the instances have a mesh filter component, copy the
@@ -72,12 +70,12 @@ class SchoolController : MonoBehaviour
         }
     }
 
-    void AllocateJobData()
+    void AllocateJobContainers()
     {
         var size = entities.Length;
         var allocator = Allocator.Persistent;
-        positions = new NativeArray<float3>(size, allocator);
-        velocities = new NativeArray<float3>(size, allocator);
+        positions = new(size, allocator);
+        velocities = new(size, allocator);
         for (int i = 0; i < size; i++)
         {
             positions[i] = entities[i].position;
@@ -91,7 +89,7 @@ class SchoolController : MonoBehaviour
         separateWeights = SchoolMath.ToNativeArray(settings.separateWeight, size, allocator);
         steerForces = SchoolMath.ToNativeArray(settings.maxSteerForce, size, allocator);
         maxSpeeds = SchoolMath.ToNativeArray(settings.maxSpeed, size, allocator);
-        accelerations = new NativeArray<float3>(size, allocator);
+        accelerations = new(size, allocator);
     }
 
     /// <summary>
@@ -149,7 +147,7 @@ class SchoolController : MonoBehaviour
         CreateEntities();
         SetupMeshInstancing();
         if (settings.enableParallelJobs)
-            AllocateJobData();
+            AllocateJobContainers();
     }
 
     void Update()
@@ -159,10 +157,7 @@ class SchoolController : MonoBehaviour
         if (Time.deltaTime < 0.1f)
         {
             if (settings.enableParallelJobs)
-            {
-                UpdateJobData();
                 UpdateEntityVelocitiesParallel();
-            }
             else
                 UpdateEntityVelocities();
         }
@@ -305,7 +300,7 @@ class SchoolController : MonoBehaviour
         }
     }
 
-    void UpdateJobData()
+    void UpdateJobsContainers()
     {
         var size = entities.Length;
         for (int i = 0; i < size; i++)
@@ -324,7 +319,7 @@ class SchoolController : MonoBehaviour
 
     void UpdateEntityVelocitiesParallel()
     {
-        UpdateJobData();
+        UpdateJobsContainers();
         // Create and run the job with a preset batch count.
         var accelerationsJob = new SchoolComputeAccelerationJob
         {

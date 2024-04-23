@@ -2,7 +2,6 @@
 // Author: Rohith Vishwajith
 // Created 4/21/2024
 
-using UnityEngine;
 using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Collections;
