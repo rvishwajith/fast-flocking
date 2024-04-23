@@ -22,13 +22,13 @@ MonoBehaviour:
   separateWeight: 2.5
   targetWeight: 0.3
   enableCollisions: 1
-  avoidCollisionWeight: 40
+  avoidCollisionWeight: 50
   skipCollisionFrames: 1
-  collisionFrameSkips: 2
+  collisionFrameSkips: 3
   collisionMask:
     serializedVersion: 2
     m_Bits: 8
-  collisionCheckDistance: 4
+  collisionCheckDistance: 3
   collisionCheckRadius: 0
   enableParallelJobs: 1
   parallelJobBatchCount: 8

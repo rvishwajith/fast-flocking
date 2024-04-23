@@ -185,13 +185,13 @@ class SchoolController : MonoBehaviour
         var dist = settings.collisionCheckDistance;
         var radius = settings.collisionCheckRadius;
         var layers = settings.collisionMask;
-        var steerForce = settings.maxSteerForce;
-        var speed = settings.maxSpeed;
+        var steerForce = steerForces[i];
+        var maxSpeed = maxSpeeds[i];
 
         // TODO: Change this to be a new float3 later and remove acceleration property
         // from entity (?) since its computed per-frame.
         var acceleration = entities[i].acceleration;
-        acceleration += SchoolUtilities.AvoidCollisionForce(position, velocity, weight, dist, radius, layers, steerForce, speed);
+        acceleration += SchoolUtilities.AvoidCollisionForce(position, velocity, weight, dist, radius, layers, steerForce, maxSpeed);
         entities[i].acceleration = acceleration;
     }
 
@@ -215,7 +215,6 @@ class SchoolController : MonoBehaviour
         {
             var detectRadius = settings.perceptionRadius;
             var avoidRadius = settings.avoidanceRadius;
-
             var velocity = entities[i].velocity;
             var maxSpeed = settings.maxSpeed;
             var steerForce = settings.maxSteerForce;
@@ -296,7 +295,7 @@ class SchoolController : MonoBehaviour
             alignWeights[i] = settings.alignWeight;
             cohesionWeights[i] = settings.cohesionWeight;
             separateWeights[i] = settings.separateWeight;
-            steerForces[i] = settings.maxSteerForce;
+            steerForces[i] = settings.maxSteerForce * Time.deltaTime * 60;
             maxSpeeds[i] = settings.maxSpeed;
         }
     }
