@@ -1117,6 +1117,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 826424943}
+  - component: {fileID: 826424947}
   - component: {fileID: 826424946}
   m_Layer: 0
   m_Name: School
@@ -1159,6 +1160,19 @@ MonoBehaviour:
   spawnRange:
     x: 6
     y: 8
+--- !u!114 &826424947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826424942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d13b41152e7e94c67b55052e4a137f71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetFrameRate: -1
 --- !u!1 &894423588
 GameObject:
   m_ObjectHideFlags: 0
@@ -1989,7 +2003,6 @@ GameObject:
   - component: {fileID: 1116360381}
   - component: {fileID: 1116360380}
   - component: {fileID: 1116360383}
-  - component: {fileID: 1116360384}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2115,19 +2128,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &1116360384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1116360379}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d13b41152e7e94c67b55052e4a137f71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetFrameRate: 120
 --- !u!1 &1144352694
 GameObject:
   m_ObjectHideFlags: 0
@@ -2196,7 +2196,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1

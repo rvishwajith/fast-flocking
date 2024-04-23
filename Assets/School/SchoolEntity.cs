@@ -21,11 +21,11 @@ struct SchoolBoid
 
     // FIXME: Remove the 6 fields below later.
     public float3 acceleration;
-    public Transform transform;
     public int detectedNeighbors;
     public float3 neighborCenter;
     public float3 neighborHeading;
     public float3 avoidHeading;
+    public Transform transform;
 
     public quaternion rotation { get { return quaternion.LookRotation(velocity, SchoolMath.WORLD_UP); } }
     public Matrix4x4 worldMatrix { get { return transform.localToWorldMatrix; } }

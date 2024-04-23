@@ -24,11 +24,11 @@ MonoBehaviour:
   enableCollisions: 1
   avoidCollisionWeight: 50
   skipCollisionFrames: 1
-  collisionFrameSkips: 2
+  collisionFrameSkips: 3
   collisionMask:
     serializedVersion: 2
     m_Bits: 8
-  collisionCheckDistance: 3
+  collisionCheckDistance: 4
   collisionCheckRadius: 0
   enableParallelJobs: 1
   parallelJobBatchCount: 8

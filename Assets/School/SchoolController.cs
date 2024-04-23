@@ -27,11 +27,13 @@ class SchoolController : MonoBehaviour
     /// </summary>
     SchoolBoid[] entities;
 
-    int frameCount = 0; // Remove this later.
+    // Remove this later.
+    int frameCount = 0;
 
     // Use GPU instancing if enabled in settings.
     Mesh instanceMesh;
     Material instanceMaterial;
+    Transform[] transforms;
 
     // Native arrays for jobs.
     NativeArray<float3> positions;
@@ -45,6 +47,8 @@ class SchoolController : MonoBehaviour
     NativeArray<float> maxSpeeds;
     NativeArray<float3> accelerations;
 
+    RaycastHit[] collisionAvoidanceBuffer = new RaycastHit[1];
+
     /// <summary>
     /// If mesh instancing is enabled and the instances have a mesh filter component, copy the
     /// mesh data from it and disable/remove and rendering data from the GameObject.
@@ -53,7 +57,6 @@ class SchoolController : MonoBehaviour
     {
         if (settings == null || !settings.useMeshInstancing || entities.Length == 0)
             return;
-
         // Cache the material and mesh.
         var entityTransform = entities[0].transform;
         if (entityTransform.TryGetComponent<MeshFilter>(out var meshFilter))
@@ -101,7 +104,6 @@ class SchoolController : MonoBehaviour
         // Initialize entities[i] array.
         void CreateEntities()
         {
-            var transforms = SchoolUtilities.InstantiateEntityTransforms(prefab, this.transform.position, spawnRange, spawnCount);
             entities = new SchoolBoid[spawnCount];
             for (var i = 0; i < entities.Length; i++)
             {
@@ -121,6 +123,7 @@ class SchoolController : MonoBehaviour
 
         // Initialize transform array than copy spatial data from each transform into the entities[i]
         // array. Replace with a matrix to avoid GameObject overhead later?
+        transforms = SchoolUtilities.InstantiateEntityTransforms(prefab, this.transform.position, spawnRange, spawnCount);
         CreateEntities();
         SetupMeshInstancing();
         if (settings.enableParallelJobs)
@@ -137,10 +140,15 @@ class SchoolController : MonoBehaviour
                 UpdateEntityVelocitiesParallel();
             else
                 UpdateEntityVelocities();
-            MoveEntities();
         }
+        MoveEntities();
         UpdateTransforms();
-        RenderInstances();
+        if (settings.useMeshInstancing)
+        {
+            if (instanceMaterial == null || instanceMesh == null)
+                return;
+            SchoolUtilities.RenderInstances(transforms, instanceMesh, instanceMaterial);
+        }
         frameCount += 1;
     }
 
@@ -148,7 +156,7 @@ class SchoolController : MonoBehaviour
     /// Apply acceleration to an entity's velocity, then reset its acceleration.
     /// TODO: Remove the acceleration field from the struct and change it to a paramter.
     /// </summary>
-    /// <param name="i">Index of the entity to reset.</param>
+    /// <param name="i">The index of the entity.</param>
     void ApplyAcceleration(int i)
     {
         entities[i].velocity += entities[i].acceleration * Time.deltaTime;
@@ -163,9 +171,31 @@ class SchoolController : MonoBehaviour
     }
 
     /// <summary>
+    /// Compute and apply collision avoidance force for a given entity automatically.
+    /// </summary>
+    /// <param name="i">The index of the entity.</param>
+    void ApplyCollisionAvoidance(int i)
+    {
+        var position = entities[i].position;
+        var velocity = entities[i].velocity;
+        var weight = settings.avoidCollisionWeight;
+        var dist = settings.collisionCheckDistance;
+        var radius = settings.collisionCheckRadius;
+        var layers = settings.collisionMask;
+        var steerForce = settings.maxSteerForce;
+        var speed = settings.maxSpeed;
+
+        // TODO: Change this to be a new float3 later and remove acceleration property
+        // from entity (?) since its computed per-frame.
+        var acceleration = entities[i].acceleration;
+        acceleration += SchoolUtilities.AvoidCollisionForce(position, velocity, weight, dist, radius, layers, steerForce, speed);
+        entities[i].acceleration = acceleration;
+    }
+
+    /// <summary>
     /// Reset values of the temporary data in the entity which is recalculated every frame.
     /// </summary>
-    /// <param name="i">Index of the entity to reset.</param>
+    /// <param name="i">The index of the entity.</param>
     void ResetEntityTempData(int i)
     {
         entities[i].detectedNeighbors = 0;
@@ -173,43 +203,6 @@ class SchoolController : MonoBehaviour
         entities[i].neighborCenter = new();
         entities[i].avoidHeading = new();
         entities[i].acceleration = new();
-    }
-
-    /// <summary>
-    /// Compute a collision avoidance vector for each entity. Assumes that collision is enabled
-    /// for the entity.
-    /// </summary>
-    /// <param name="i">Index of the entity to compute the vector for.</param>
-    /// <returns></returns>
-    float3 ComputeCollisionAvoidanceRay(int i)
-    {
-        var collisionWeight = settings.avoidCollisionWeight;
-        var castDist = settings.collisionCheckDistance;
-        var layers = settings.collisionMask;
-        var steerForce = settings.maxSteerForce;
-        var velocity = entities[i].velocity;
-        var radius = settings.collisionCheckRadius;
-        var pos = entities[i].position;
-        // entities[i].transform.forward = entities[i].velocity;
-        var rot = quaternion.LookRotation(math.normalize(velocity), SchoolMath.WORLD_UP);
-        var dirs = SchoolMath.TURN_DIRS_MED;
-        for (int k = 0; k < dirs.Length; k++)
-        {
-            // var dir = entities[i].transform.TransformDirection(dirs[k]);
-            var dir = math.rotate(rot, dirs[k]);
-            var ray = new Ray(pos, dir);
-            if (radius > 0 && !Physics.SphereCast(ray, radius, castDist, layers))
-            {
-                return collisionWeight * SchoolMath.SteerTowards(
-                    velocity, dir, steerForce, settings.maxSpeed);
-            }
-            else if (radius == 0 && !Physics.Raycast(ray, castDist, layers))
-            {
-                return collisionWeight * SchoolMath.SteerTowards(
-                    velocity, dir, steerForce, settings.maxSpeed);
-            }
-        }
-        return new float3();
     }
 
     void UpdateEntityVelocities()
@@ -283,7 +276,7 @@ class SchoolController : MonoBehaviour
                 continue;
             else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
                 continue;
-            entities[i].acceleration += ComputeCollisionAvoidanceRay(i);
+            ApplyCollisionAvoidance(i);
             ApplyAcceleration(i);
         }
     }
@@ -339,11 +332,10 @@ class SchoolController : MonoBehaviour
                 continue;
             else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
                 continue;
-            entities[i].acceleration += ComputeCollisionAvoidanceRay(i);
+            // Collision checking is enabled, so compute and apply the collision force.
+            ApplyCollisionAvoidance(i);
             ApplyAcceleration(i);
         }
-        // Debug.Log("Parallel acceleration computations completed, disposing of data.");
-        // DisposeJobData();
     }
 
     /// <summary>
@@ -365,42 +357,17 @@ class SchoolController : MonoBehaviour
     /// </summary>
     void UpdateTransforms()
     {
-        for (var i = 0; i < entities.Length; i++)
+        for (var i = 0; i < transforms.Length; i++)
         {
-            entities[i].transform.position = entities[i].position;
-            entities[i].transform.forward = entities[i].forward;
+            transforms[i].position = entities[i].position;
+            transforms[i].forward = entities[i].forward;
         }
     }
 
     /// <summary>
-    /// If mesh instancing is enabled, render the entities with the given mesh and material
-    /// properties using Graphics.RenderMeshInstanced.
+    /// When the school controller is rmeoved (the scene ends), dispose of all NativeArrays since
+    /// they must be manually de-allocated.
     /// </summary>
-    void RenderInstances()
-    {
-        if (!settings.useMeshInstancing || instanceMesh == null || instanceMaterial == null)
-            return;
-
-        var renderParams = new RenderParams(instanceMaterial);
-        var meshesRendered = 0;
-        var step = SchoolMath.MAX_INSTANCE_BATCH_SIZE;
-        for (var i = 0; i < entities.Length; i += step)
-        {
-            var numInstances = math.min(i + step, entities.Length) - i;
-            // if (frameCount == 5)
-            //     Debug.Log("Meshes to render: " + numInstances);
-            var instanceMatrices = new Matrix4x4[numInstances];
-            for (var j = 0; j < numInstances; j++)
-            {
-                instanceMatrices[j] = entities[i + j].transform.localToWorldMatrix;
-                meshesRendered += 1;
-            }
-            Graphics.RenderMeshInstanced(renderParams, instanceMesh, 0, instanceMatrices);
-        }
-        // if (frameCount == 5)
-        //     Debug.Log("Meshes rendered: " + meshesRendered);
-    }
-
     void OnDestroy()
     {
         // Debug.Log("Killing school controller, disposing of allocated jobs data.");

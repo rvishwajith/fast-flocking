@@ -11,6 +11,9 @@ using Unity.Burst;
 /// </summary>
 public static class SchoolUtilities
 {
+    public static readonly int MAX_INSTANCE_BATCH_SIZE = 1023;
+    static RaycastHit[] COLLISION_BUFFER = new RaycastHit[1];
+
     /// <summary>
     /// Instantiate a large number of transforms corresponding to entities with a given position to offset from.
     /// </summary>
@@ -19,7 +22,7 @@ public static class SchoolUtilities
     /// <param name="spawnRange">The offset range.</param>
     /// <param name="spawnCount">The number of instantiations.</param>
     /// <returns>An array of instantiated transforms.</returns>
-    // [BurstCompile(CompileSynchronously = true)]
+    [BurstCompile]
     public static Transform[] InstantiateEntityTransforms(Transform prefab, float3 point, float2 spawnRange, int spawnCount)
     {
         var transforms = new Transform[spawnCount];
@@ -35,5 +38,62 @@ public static class SchoolUtilities
             transforms[i] = t;
         }
         return transforms;
+    }
+
+    /// <summary>
+    /// If mesh instancing is enabled, render the entities with the given mesh and material
+    /// properties using Graphics.RenderMeshInstanced.
+    /// </summary>
+    [BurstCompile]
+    public static void RenderInstances(Transform[] transforms, Mesh mesh, Material material)
+    {
+        var renderParams = new RenderParams(material);
+        var meshesRendered = 0;
+        var step = MAX_INSTANCE_BATCH_SIZE;
+        for (var i = 0; i < transforms.Length; i += step)
+        {
+            var instanceCount = math.min(i + step, transforms.Length) - i;
+            // if (frameCount == 5)
+            //     Debug.Log("Meshes to render: " + numInstances);
+            var matrices = new Matrix4x4[instanceCount];
+            for (var j = 0; j < instanceCount; j++)
+            {
+                matrices[j] = transforms[i + j].localToWorldMatrix;
+                meshesRendered += 1;
+            }
+            Graphics.RenderMeshInstanced(renderParams, mesh, 0, matrices);
+        }
+    }
+
+    /// <summary>
+    /// Compute a collision avoidance vector provided an entity's position, velocity, and collision
+    /// settings.
+    /// </summary>
+    /// <param name="position">The position of the entity.</param>
+    /// <param name="velocity">The velocity of the entity.</param>
+    /// <param name="weight">The collision weight (may be removed later).</param>
+    /// <param name="castDistance">The raycast distance.</param>
+    /// <param name="radius">The radius of the cast. If the radius is 0, a spherecast is used.</param>
+    /// <param name="layerMask">The layermask of the cast.</param>
+    /// <param name="steerForce">The maximum steer force.</param>
+    /// <param name="moveSpeed">The maximum move speed.</param>
+    /// <returns>The avoidance vector, adjusted based on the weight, speed, and steerforce.</returns>
+    [BurstCompile]
+    public static float3 AvoidCollisionForce(float3 position, float3 velocity, float weight, float castDistance, float radius, LayerMask layerMask, float steerForce, float moveSpeed)
+    {
+        var rotation = quaternion.LookRotation(math.normalize(velocity), SchoolMath.WORLD_UP);
+        var dirs = SchoolMath.TURN_DIRS_MED;
+        var useSphereCast = radius > 0;
+        for (int k = 0; k < dirs.Length; k++)
+        {
+            var direction = math.rotate(rotation, dirs[k]);
+            var ray = new Ray(position, direction);
+            if (useSphereCast && Physics.SphereCastNonAlloc(ray, radius, COLLISION_BUFFER, castDistance, layerMask) == 0)
+                return weight * SchoolMath.SteerTowards(velocity, direction, steerForce, moveSpeed);
+            else if (Physics.RaycastNonAlloc(ray, COLLISION_BUFFER, castDistance, layerMask) == 0)
+                return weight * SchoolMath.SteerTowards(velocity, direction, steerForce, moveSpeed);
+        }
+        // No better direction was found, return the initial direction.
+        return velocity;
     }
 }
