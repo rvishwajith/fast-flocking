@@ -39,6 +39,7 @@ class SchoolController : MonoBehaviour
     NativeArray<float3> positions;
     NativeArray<float3> velocities;
     NativeArray<float> detectRadii;
+    NativeArray<float> detectAngles;
     NativeArray<float> avoidRadii;
     NativeArray<float> alignWeights;
     NativeArray<float> cohesionWeights;
@@ -82,6 +83,7 @@ class SchoolController : MonoBehaviour
             positions[i] = entities[i].position;
             velocities[i] = entities[i].velocity;
         }
+        detectAngles = SchoolMath.ToNativeArray(settings.perceptionAngle, size, allocator);
         detectRadii = SchoolMath.ToNativeArray(settings.perceptionRadius, size, allocator);
         avoidRadii = SchoolMath.ToNativeArray(settings.avoidanceRadius, size, allocator);
         alignWeights = SchoolMath.ToNativeArray(settings.alignWeight, size, allocator);
@@ -90,6 +92,26 @@ class SchoolController : MonoBehaviour
         steerForces = SchoolMath.ToNativeArray(settings.maxSteerForce, size, allocator);
         maxSpeeds = SchoolMath.ToNativeArray(settings.maxSpeed, size, allocator);
         accelerations = new NativeArray<float3>(size, allocator);
+    }
+
+    /// <summary>
+    /// When the school controller is rmeoved (the scene ends), dispose of all NativeArrays since
+    /// they must be manually de-allocated.
+    /// </summary>
+    void OnDestroy()
+    {
+        // Debug.Log("Killing school controller, disposing of allocated jobs data.");
+        positions.Dispose();
+        velocities.Dispose();
+        detectRadii.Dispose();
+        detectAngles.Dispose();
+        avoidRadii.Dispose();
+        alignWeights.Dispose();
+        cohesionWeights.Dispose();
+        separateWeights.Dispose();
+        steerForces.Dispose();
+        maxSpeeds.Dispose();
+        accelerations.Dispose();
     }
 
     void Start()
@@ -309,6 +331,7 @@ class SchoolController : MonoBehaviour
             positions = positions,
             velocities = velocities,
             detectRadii = detectRadii,
+            detectAngles = detectAngles,
             avoidRadii = avoidRadii,
             alignWeights = alignWeights,
             cohesionWeights = cohesionWeights,
@@ -374,25 +397,6 @@ class SchoolController : MonoBehaviour
             transforms[i].position = entities[i].position;
             transforms[i].forward = entities[i].forward;
         }
-    }
-
-    /// <summary>
-    /// When the school controller is rmeoved (the scene ends), dispose of all NativeArrays since
-    /// they must be manually de-allocated.
-    /// </summary>
-    void OnDestroy()
-    {
-        // Debug.Log("Killing school controller, disposing of allocated jobs data.");
-        positions.Dispose();
-        velocities.Dispose();
-        detectRadii.Dispose();
-        avoidRadii.Dispose();
-        alignWeights.Dispose();
-        cohesionWeights.Dispose();
-        separateWeights.Dispose();
-        steerForces.Dispose();
-        maxSpeeds.Dispose();
-        accelerations.Dispose();
     }
 
     void OnDrawGizmosSelected()

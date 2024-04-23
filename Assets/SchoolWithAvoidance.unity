@@ -1530,7 +1530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3371755c1939f4fe58898d45bf38a5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 2000
+  spawnCount: 2046
   settings: {fileID: 11400000, guid: 2fa6979b15bf243a1abe41df1d93759e, type: 2}
   prefab: {fileID: 6603880847259896856, guid: b8590e7baf85a49b1b63f07cab8a6aa7, type: 3}
   spawnRange:

@@ -12,23 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fce0b5aca60854176ae6a9cfd533190d, type: 3}
   m_Name: SchoolSettings
   m_EditorClassIdentifier: 
-  minSpeed: 4.5
-  maxSpeed: 7
-  maxSteerForce: 12
-  perceptionRadius: 2
+  minSpeed: 4
+  maxSpeed: 8
+  maxSteerForce: 9
+  perceptionRadius: 2.5
+  perceptionAngle: 180
   avoidanceRadius: 1.75
   alignWeight: 1.3
   cohesionWeight: 1
   separateWeight: 2.5
   targetWeight: 0.3
   enableCollisions: 1
-  avoidCollisionWeight: 50
+  avoidCollisionWeight: 30
   skipCollisionFrames: 1
   collisionFrameSkips: 3
   collisionMask:
     serializedVersion: 2
     m_Bits: 8
-  collisionCheckDistance: 3
+  collisionCheckDistance: 4
   collisionCheckRadius: 0
   enableParallelJobs: 1
   parallelJobBatchCount: 8

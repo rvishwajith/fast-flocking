@@ -18,12 +18,12 @@ public class SchoolSettings : ScriptableObject
 
     [Header("Rule Weights")] // -------------------------------------------------------------------
     public float perceptionRadius = 4f;
+    [Range(0f, 180f)]
+    public float perceptionAngle = 60f;
     public float avoidanceRadius = 2f;
     public float alignWeight = 1.5f;
     public float cohesionWeight = 1;
     public float separateWeight = 2.5f;
-
-    [Header("Seeking")] // ------------------------------------------------------------------------
     public float targetWeight = 1f;
 
     [Header("Collisions")] // ---------------------------------------------------------------------
@@ -36,10 +36,11 @@ public class SchoolSettings : ScriptableObject
     public float collisionCheckRadius = 0.25f;
 
     [Header("Performance")] // --------------------------------------------------------------------
+
     public bool enableParallelJobs = true;
     /// <summary>
-    /// For maximim performance, the bathc count should be no more than 2X the number of device
-    /// cores that can be used.
+    /// Parallel job batch count. For maximim performance, the bathc count should be no more than
+    /// 2X the number of device cores that can be used.
     /// </summary>
     public int parallelJobBatchCount = 4;
 

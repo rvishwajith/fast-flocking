@@ -24,6 +24,7 @@ public struct SchoolComputeAccelerationJob : IJobParallelFor
     [ReadOnly] public NativeArray<float3> velocities;
 
     [ReadOnly] public NativeArray<float> detectRadii;
+    [ReadOnly] public NativeArray<float> detectAngles;
     [ReadOnly] public NativeArray<float> avoidRadii;
 
     [ReadOnly] public NativeArray<float> alignWeights;
@@ -55,9 +56,11 @@ public struct SchoolComputeAccelerationJob : IJobParallelFor
         // Cache input data (just to make code more readable).
         var pos = positions[i];
         var velocity = velocities[i];
+        var forward = math.normalize(velocity);
 
         var detectRadius = detectRadii[i];
         var avoidRadius = avoidRadii[i];
+        var detectAngle = detectAngles[i];
 
         var alignWeight = alignWeights[i];
         var cohesionWeight = cohesionWeights[i];
@@ -72,19 +75,23 @@ public struct SchoolComputeAccelerationJob : IJobParallelFor
         var neighborCenter = new float3();
         var avoidHeading = new float3();
         var acceleration = new float3();
-
         for (int j = 0; j < positions.Length; j++)
         {
             if (i == j)
                 continue;
             var neighborPos = positions[j];
             var dist = math.distance(pos, neighborPos);
-            if (dist > 0 && dist <= detectRadius)
+            if (dist >= 0.001f && dist <= detectRadius)
             {
-                detectedNeighbors += 1;
-                neighborHeading += math.normalize(velocities[j]);
-                if (dist <= avoidRadius)
-                    avoidHeading += (pos - neighborPos) / (dist * dist);
+                var neighborOffset = neighborPos - pos;
+                var neighborAngle = math.degrees(math.acos(math.dot(forward, math.normalize(neighborOffset))));
+                if (neighborAngle <= detectAngle)
+                {
+                    detectedNeighbors += 1;
+                    neighborHeading += math.normalize(velocities[j]);
+                    if (dist <= avoidRadius)
+                        avoidHeading += (pos - neighborPos) / (dist * dist);
+                }
             }
         }
 
