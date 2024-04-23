@@ -27,7 +27,7 @@ MonoBehaviour:
   collisionFrameSkips: 2
   collisionMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 8
   collisionCheckDistance: 3
   collisionCheckRadius: 0
   enableParallelJobs: 1

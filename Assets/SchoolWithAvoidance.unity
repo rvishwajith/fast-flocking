@@ -286,7 +286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 83525468}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cylindrical Bounds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -405,13 +405,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 309155780}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Spherical Bounds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &309155780
 Transform:
   m_ObjectHideFlags: 0
@@ -421,9 +421,9 @@ Transform:
   m_GameObject: {fileID: 309155779}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 8, z: 0}
+  m_LocalPosition: {x: 0, y: 16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1454240049}
   - {fileID: 327479214}
@@ -442,7 +442,7 @@ GameObject:
   - component: {fileID: 327479217}
   - component: {fileID: 327479216}
   - component: {fileID: 327479215}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -546,7 +546,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 412719967}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: OuterWallRings2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -584,13 +584,13 @@ GameObject:
   - component: {fileID: 417443925}
   - component: {fileID: 417443924}
   - component: {fileID: 417443923}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &417443922
 Transform:
   m_ObjectHideFlags: 0
@@ -689,7 +689,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 501119206}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: InvertedWallRings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1153,12 +1153,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3371755c1939f4fe58898d45bf38a5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 1500
+  spawnCount: 2000
   settings: {fileID: 11400000, guid: 2fa6979b15bf243a1abe41df1d93759e, type: 2}
   prefab: {fileID: 6603880847259896856, guid: b8590e7baf85a49b1b63f07cab8a6aa7, type: 3}
   spawnRange:
-    x: 4
-    y: 6
+    x: 6
+    y: 8
 --- !u!1 &894423588
 GameObject:
   m_ObjectHideFlags: 0
@@ -1357,12 +1357,12 @@ GameObject:
   - component: {fileID: 945212148}
   - component: {fileID: 945212147}
   - component: {fileID: 945212146}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!64 &945212146
 MeshCollider:
@@ -1465,12 +1465,12 @@ GameObject:
   - component: {fileID: 960458521}
   - component: {fileID: 960458520}
   - component: {fileID: 960458519}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!65 &960458519
 BoxCollider:
@@ -2254,12 +2254,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1161740289}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Obstacles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &1161740289
 Transform:
@@ -2784,7 +2784,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1454240049}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: OuterWallRings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2821,7 +2821,7 @@ GameObject:
   - component: {fileID: 1528176032}
   - component: {fileID: 1528176031}
   - component: {fileID: 1528176030}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: InnerSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3272,12 +3272,12 @@ GameObject:
   - component: {fileID: 1680934400}
   - component: {fileID: 1680934399}
   - component: {fileID: 1680934398}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!65 &1680934398
 BoxCollider:
@@ -3635,7 +3635,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1783938148}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: OuterWallRings3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3752,12 +3752,12 @@ GameObject:
   - component: {fileID: 1994441791}
   - component: {fileID: 1994441790}
   - component: {fileID: 1994441789}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &1994441788
 Transform:
@@ -3938,7 +3938,7 @@ GameObject:
   - component: {fileID: 2037420007}
   - component: {fileID: 2037420006}
   - component: {fileID: 2037420005}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: InnerSphereLarge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4042,7 +4042,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2052691725}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: OuterWallRings1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4080,13 +4080,13 @@ GameObject:
   - component: {fileID: 2095354924}
   - component: {fileID: 2095354923}
   - component: {fileID: 2095354922}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Ceiling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &2095354922
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4501,8 +4501,8 @@ SceneRoots:
   - {fileID: 1144352696}
   - {fileID: 655450929}
   - {fileID: 826424943}
+  - {fileID: 945212149}
   - {fileID: 83525468}
   - {fileID: 309155780}
-  - {fileID: 945212149}
   - {fileID: 894423589}
   - {fileID: 1161740289}

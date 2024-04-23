@@ -11,22 +11,22 @@ using UnityEngine;
 [CreateAssetMenu]
 public class SchoolSettings : ScriptableObject
 {
-    [Header("Movement")]
+    [Header("Movement")] // -----------------------------------------------------------------------
     public float minSpeed = 4f;
     public float maxSpeed = 9.5f;
     public float maxSteerForce = 10f;
 
-    [Header("Rule Weights")]
+    [Header("Rule Weights")] // -------------------------------------------------------------------
     public float perceptionRadius = 4f;
     public float avoidanceRadius = 2f;
     public float alignWeight = 1.5f;
     public float cohesionWeight = 1;
     public float separateWeight = 2.5f;
 
-    [Header("Seeking")]
+    [Header("Seeking")] // ------------------------------------------------------------------------
     public float targetWeight = 1f;
 
-    [Header("Collisions")]
+    [Header("Collisions")] // ---------------------------------------------------------------------
     public bool enableCollisions = true;
     public float avoidCollisionWeight = 20f;
     public bool skipCollisionFrames = false;
@@ -35,10 +35,14 @@ public class SchoolSettings : ScriptableObject
     public float collisionCheckDistance = 4f;
     public float collisionCheckRadius = 0.25f;
 
-    [Header("Performance")]
+    [Header("Performance")] // --------------------------------------------------------------------
     public bool enableParallelJobs = true;
+    /// <summary>
+    /// For maximim performance, the bathc count should be no more than 2X the number of device
+    /// cores that can be used.
+    /// </summary>
     public int parallelJobBatchCount = 4;
 
-    [Header("Rendering")]
+    [Header("Rendering")] // ----------------------------------------------------------------------
     public bool useMeshInstancing = false;
 }

@@ -60,7 +60,6 @@ class SchoolController : MonoBehaviour
             instanceMesh = meshFilter.mesh;
         if (entityTransform.TryGetComponent<MeshRenderer>(out var meshRenderer))
             instanceMaterial = meshRenderer.material;
-
         // Disable/remove the mesh renderers for each instance.
         for (var i = 0; i < entities.Length; i++)
         {
@@ -99,27 +98,10 @@ class SchoolController : MonoBehaviour
             return;
         }
 
-        // Initialize entities[i] transform array.
-        Transform[] InstantiateEntityTransforms()
-        {
-            var transforms = new Transform[spawnCount];
-            for (var i = 0; i < transforms.Length; i++)
-            {
-                var t = Instantiate(prefab).transform;
-                t.name = "Entity" + i;
-                var offsetDist = UnityEngine.Random.Range(spawnRange.x, spawnRange.y);
-                t.position = this.transform.position + UnityEngine.Random.onUnitSphere * offsetDist;
-                t.LookAt(this.transform.position, Vector3.up);
-                t.forward = t.right;
-                transforms[i] = t;
-            }
-            return transforms;
-        }
-
         // Initialize entities[i] array.
         void CreateEntities()
         {
-            var transforms = InstantiateEntityTransforms();
+            var transforms = SchoolUtilities.InstantiateEntityTransforms(prefab, this.transform.position, spawnRange, spawnCount);
             entities = new SchoolBoid[spawnCount];
             for (var i = 0; i < entities.Length; i++)
             {
@@ -199,7 +181,7 @@ class SchoolController : MonoBehaviour
     /// </summary>
     /// <param name="i">Index of the entity to compute the vector for.</param>
     /// <returns></returns>
-    float3 ComputeCollisionAvoidance(int i)
+    float3 ComputeCollisionAvoidanceRay(int i)
     {
         var collisionWeight = settings.avoidCollisionWeight;
         var castDist = settings.collisionCheckDistance;
@@ -301,7 +283,7 @@ class SchoolController : MonoBehaviour
                 continue;
             else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
                 continue;
-            entities[i].acceleration += ComputeCollisionAvoidance(i);
+            entities[i].acceleration += ComputeCollisionAvoidanceRay(i);
             ApplyAcceleration(i);
         }
     }
@@ -357,7 +339,7 @@ class SchoolController : MonoBehaviour
                 continue;
             else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
                 continue;
-            entities[i].acceleration += ComputeCollisionAvoidance(i);
+            entities[i].acceleration += ComputeCollisionAvoidanceRay(i);
             ApplyAcceleration(i);
         }
         // Debug.Log("Parallel acceleration computations completed, disposing of data.");
@@ -421,7 +403,7 @@ class SchoolController : MonoBehaviour
 
     void OnDestroy()
     {
-        Debug.Log("Killing school controller, disposing of allocated jobs data.");
+        // Debug.Log("Killing school controller, disposing of allocated jobs data.");
         positions.Dispose();
         velocities.Dispose();
         detectRadii.Dispose();
