@@ -45,40 +45,6 @@ public struct SchoolComputeAccelerationJob : IJobParallelFor
         accelerations[i] = ComputeAccelerationIterative(i);
     }
 
-    // float3 ComputeAccelerationUsingPhysics(int i)
-    // {
-    //     var pos = positions[i];
-    //     var velocity = velocities[i];
-
-    //     var detectRadius = detectRadii[i];
-    //     var avoidRadius = avoidRadii[i];
-
-    //     var alignWeight = alignWeights[i];
-    //     var cohesionWeight = cohesionWeights[i];
-    //     var separateWeight = separateWeights[i];
-
-    //     var steerForce = steerForces[i];
-    //     var maxSpeed = maxSpeeds[i];
-
-    //     var neighbors = Physics.OverlapSphere(pos, detectRadius, SchoolMath.SCHOOL_LAYER);
-    //     var detectedNeighbors = neighbors.Length - 1;
-    //     var neighborHeading = new float3();
-    //     var neighborCenter = new float3();
-    //     var avoidHeading = new float3();
-    //     var acceleration = new float3();
-    //     for (var j = 0; j < detectedNeighbors; j++)
-    //     {
-    //         float3 neighborPos = neighbors[j].transform.position;
-    //         var dist = math.distance(pos, neighborPos);
-    //         neighborCenter += neighborPos;
-    //         neighborHeading += neighbors[i].transform.forward;
-    //         if (dist > 0.01f && dist <= avoidRadius)
-    //         {
-
-    //         }
-    //     }
-    // }
-
     /// <summary>
     /// Compute the neighbors' accleration using a simple distance check.
     /// </summary>
