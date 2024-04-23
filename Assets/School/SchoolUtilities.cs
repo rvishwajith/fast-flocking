@@ -5,15 +5,14 @@
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Burst;
+using Unity.Jobs;
+using Unity.Collections;
 
 /// <summary>
 /// A helper class for SchoolController that handles instantiation. Will handle more later, such as computing an avoidance ray.
 /// </summary>
 public static class SchoolUtilities
 {
-    public static readonly int MAX_INSTANCE_BATCH_SIZE = 1023;
-    static RaycastHit[] COLLISION_BUFFER = new RaycastHit[1];
-
     /// <summary>
     /// Instantiate a large number of transforms corresponding to entities with a given position to offset from.
     /// </summary>
@@ -40,6 +39,8 @@ public static class SchoolUtilities
         return transforms;
     }
 
+    static readonly int MAX_INSTANCE_BATCH_SIZE = 1023;
+
     /// <summary>
     /// If mesh instancing is enabled, render the entities with the given mesh and material
     /// properties using Graphics.RenderMeshInstanced.
@@ -47,23 +48,26 @@ public static class SchoolUtilities
     [BurstCompile]
     public static void RenderInstances(Transform[] transforms, Mesh mesh, Material material)
     {
+        if (transforms == null || mesh == null || material == null)
+            return;
         var renderParams = new RenderParams(material);
         var meshesRendered = 0;
         var step = MAX_INSTANCE_BATCH_SIZE;
         for (var i = 0; i < transforms.Length; i += step)
         {
             var instanceCount = math.min(i + step, transforms.Length) - i;
-            // if (frameCount == 5)
-            //     Debug.Log("Meshes to render: " + numInstances);
-            var matrices = new Matrix4x4[instanceCount];
+            var matrices = new NativeArray<Matrix4x4>(instanceCount, Allocator.TempJob);
             for (var j = 0; j < instanceCount; j++)
             {
                 matrices[j] = transforms[i + j].localToWorldMatrix;
                 meshesRendered += 1;
             }
             Graphics.RenderMeshInstanced(renderParams, mesh, 0, matrices);
+            matrices.Dispose();
         }
     }
+
+    static readonly RaycastHit[] COLLISION_BUFFER = new RaycastHit[1];
 
     /// <summary>
     /// Compute a collision avoidance vector provided an entity's position, velocity, and collision

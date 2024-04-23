@@ -10,7 +10,7 @@ using Unity.Mathematics;
 /// A simple struct containing the data of a single entity in a school, which is controlled 
 /// by SchoolController. Designed to be thread-safe for Jobs-based workflow.
 /// </summary>
-struct SchoolBoid
+class SchoolBoid
 {
     public int id;
     public float3 position;

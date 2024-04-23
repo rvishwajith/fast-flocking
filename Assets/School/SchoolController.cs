@@ -137,7 +137,10 @@ class SchoolController : MonoBehaviour
         if (Time.deltaTime < 0.1f)
         {
             if (settings.enableParallelJobs)
+            {
+                UpdateJobData();
                 UpdateEntityVelocitiesParallel();
+            }
             else
                 UpdateEntityVelocities();
         }
@@ -281,16 +284,26 @@ class SchoolController : MonoBehaviour
         }
     }
 
-    void UpdateEntityVelocitiesParallel()
+    void UpdateJobData()
     {
-        // Create and populate input/output arrays for job data.
         var size = entities.Length;
         for (int i = 0; i < size; i++)
         {
             positions[i] = entities[i].position;
             velocities[i] = entities[i].velocity;
+            avoidRadii[i] = settings.avoidanceRadius;
+            cohesionWeights[i] = settings.cohesionWeight;
+            alignWeights[i] = settings.alignWeight;
+            cohesionWeights[i] = settings.cohesionWeight;
+            separateWeights[i] = settings.separateWeight;
+            steerForces[i] = settings.maxSteerForce;
+            maxSpeeds[i] = settings.maxSpeed;
         }
+    }
 
+    void UpdateEntityVelocitiesParallel()
+    {
+        UpdateJobData();
         // Create and run the job with a preset batch count.
         var accelerationsJob = new SchoolComputeAccelerationJob
         {
@@ -308,7 +321,7 @@ class SchoolController : MonoBehaviour
 
         // FIXME: This can probably be higher (8 seems good).
         var batchCount = settings.parallelJobBatchCount;
-        var handle = accelerationsJob.Schedule(size, batchCount);
+        var handle = accelerationsJob.Schedule(entities.Length, batchCount);
 
         // Once the job is completed, apply accelerations to each entity then dispos of data.
         handle.Complete();
