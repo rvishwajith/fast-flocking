@@ -15,6 +15,7 @@ public class SchoolSettings : ScriptableObject
     public float minSpeed = 4f;
     public float maxSpeed = 9.5f;
     public float maxSteerForce = 10f;
+    public float maxTurnSpeed = 150f;
 
     [Header("Rule Weights")] // -------------------------------------------------------------------
     public float perceptionRadius = 4f;
@@ -35,9 +36,6 @@ public class SchoolSettings : ScriptableObject
     public float collisionCheckDistance = 4f;
     public float collisionCheckRadius = 0.25f;
 
-    [Header("Performance")] // --------------------------------------------------------------------
-
-    public bool enableParallelJobs = true;
     /// <summary>
     /// Parallel job batch count. For maximim performance, the bathc count should be no more than
     /// 2X the number of device cores that can be used.

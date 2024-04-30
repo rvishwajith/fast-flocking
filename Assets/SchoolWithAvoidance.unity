@@ -752,6 +752,60 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4449853434147091036, guid: 1571dd886a325442ab911ed3a2733e86, type: 3}
+--- !u!1 &385457007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 385457008}
+  - component: {fileID: 385457009}
+  m_Layer: 3
+  m_Name: Donut4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &385457008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385457007}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1264373970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &385457009
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385457007}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4449853434147091036, guid: 1571dd886a325442ab911ed3a2733e86, type: 3}
 --- !u!1 &412719966
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,7 +1246,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1264373970}
@@ -1530,7 +1584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3371755c1939f4fe58898d45bf38a5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 3000
+  spawnCount: 1000
   settings: {fileID: 11400000, guid: 2fa6979b15bf243a1abe41df1d93759e, type: 2}
   prefab: {fileID: 6603880847259896856, guid: b8590e7baf85a49b1b63f07cab8a6aa7, type: 3}
   spawnRange:
@@ -3311,6 +3365,7 @@ Transform:
   - {fileID: 710317339}
   - {fileID: 2037420004}
   - {fileID: 1528176029}
+  - {fileID: 385457008}
   - {fileID: 706926031}
   - {fileID: 1708165583}
   - {fileID: 862492760}

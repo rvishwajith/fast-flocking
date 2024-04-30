@@ -146,8 +146,7 @@ class SchoolController : MonoBehaviour
         transforms = SchoolUtilities.InstantiateEntityTransforms(prefab, this.transform.position, spawnRange, spawnCount);
         CreateEntities();
         SetupMeshInstancing();
-        if (settings.enableParallelJobs)
-            AllocateJobContainers();
+        AllocateJobContainers();
     }
 
     void Update()
@@ -156,10 +155,7 @@ class SchoolController : MonoBehaviour
         // teleportation through colliders.
         if (Time.deltaTime < 0.1f)
         {
-            if (settings.enableParallelJobs)
-                UpdateEntityVelocitiesParallel();
-            else
-                UpdateEntityVelocities();
+            UpdateEntityVelocitiesParallel();
         }
         MoveEntities();
         UpdateTransforms();
@@ -179,11 +175,17 @@ class SchoolController : MonoBehaviour
     /// <param name="i">The index of the entity.</param>
     void ApplyAcceleration(int i)
     {
-        entities[i].velocity += entities[i].acceleration * Time.deltaTime;
         if (math.length(entities[i].velocity) == 0)
         {
-            entities[i].velocity = Unity.Mathematics.Random.CreateFromIndex(0).NextFloat3Direction();
+            entities[i].velocity = Unity.Mathematics.Random.CreateFromIndex(0).NextFloat3Direction() * settings.minSpeed;
         }
+        var newVelocity = entities[i].velocity + entities[i].acceleration * Time.deltaTime;
+        var turnAmount = math.degrees(math.acos(math.dot(entities[i].velocity, newVelocity)));
+        if (turnAmount > settings.maxTurnSpeed * Time.deltaTime)
+        {
+            newVelocity = math.lerp(entities[i].velocity, newVelocity, settings.maxTurnSpeed * Time.deltaTime);
+        }
+        entities[i].velocity = newVelocity;
         var speed = math.clamp(math.length(entities[i].velocity), settings.minSpeed, settings.maxSpeed);
         entities[i].velocity = speed * math.normalize(entities[i].velocity);
         entities[i].acceleration = new();
@@ -198,7 +200,7 @@ class SchoolController : MonoBehaviour
     {
         var position = entities[i].position;
         var velocity = entities[i].velocity;
-        var weight = settings.avoidCollisionWeight;
+        var weight = settings.avoidCollisionWeight * (settings.skipCollisionFrames ? settings.collisionFrameSkips : 1);
         var dist = settings.collisionCheckDistance;
         var radius = settings.collisionCheckRadius;
         var layers = settings.collisionMask;
@@ -225,81 +227,6 @@ class SchoolController : MonoBehaviour
         entities[i].acceleration = new();
     }
 
-    void UpdateEntityVelocities()
-    {
-        // Compute acceleration for all entities.
-        for (int i = 0; i < entities.Length; i++)
-        {
-            var detectRadius = settings.perceptionRadius;
-            var avoidRadius = settings.avoidanceRadius;
-            var velocity = entities[i].velocity;
-            var maxSpeed = settings.maxSpeed;
-            var steerForce = settings.maxSteerForce;
-
-            // Reset all values.
-            ResetEntityTempData(i);
-
-            // Complete neighbor-based calculations.
-            // FIXME: Currently this is slow, possible optimizations:
-            // 1. Add colliders to transforms and use Physics.OverlapSphere()?
-            // 2. Use jobs or a compute shader?
-            for (int j = 0; j < entities.Length; j++)
-            {
-                if (i == j)
-                    continue;
-                var neighbor = entities[j];
-                float dist = math.distance(neighbor.position, entities[i].position);
-                if (dist > 0 && dist <= detectRadius)
-                {
-                    entities[i].detectedNeighbors += 1;
-                    entities[i].neighborHeading += neighbor.forward;
-                    entities[i].neighborCenter += neighbor.position;
-                    if (dist <= avoidRadius)
-                        entities[i].avoidHeading += (entities[i].position - neighbor.position) / (dist * dist);
-                }
-            }
-
-            // If the entity has detected neighbors, update the acceleration for it.
-            if (entities[i].detectedNeighbors != 0)
-            {
-                entities[i].neighborCenter /= entities[i].detectedNeighbors;
-                // Compute align force.
-                var align = settings.alignWeight * SchoolMath.SteerTowards(
-                    velocity, entities[i].neighborHeading, steerForce, maxSpeed);
-                // Compute center of mass (attraction) force.
-                var toCenter = settings.cohesionWeight * SchoolMath.SteerTowards(
-                    velocity, entities[i].neighborCenter - entities[i].position, steerForce, maxSpeed);
-                // Compute separate (move away from neighbor position) force.
-                var separate = settings.separateWeight * SchoolMath.SteerTowards(
-                    velocity, entities[i].avoidHeading, steerForce, maxSpeed);
-                // Apply forces to acceleration.
-                entities[i].acceleration += align + toCenter + separate;
-            }
-
-            // Compute target attraction force if a target is set.
-            if (entities[i].target != null)
-            {
-                var targetOffset = new float3(entities[i].target.position) - entities[i].position;
-                var targetForce = settings.targetWeight * SchoolMath.SteerTowards(
-                    velocity, targetOffset, steerForce, maxSpeed);
-                entities[i].acceleration += targetForce;
-            }
-            ApplyAcceleration(i);
-        }
-
-        // Compute acceleration for collision avoidance.
-        for (int i = 0; i < entities.Length; i++)
-        {
-            // Check if collisions should be calculated, skip RayCast if unneeded.
-            if (!settings.enableCollisions)
-                continue;
-            else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
-                continue;
-            ApplyCollisionAvoidance(i);
-            ApplyAcceleration(i);
-        }
-    }
-
     void UpdateJobsContainers()
     {
         var size = entities.Length;
@@ -312,7 +239,7 @@ class SchoolController : MonoBehaviour
             alignWeights[i] = settings.alignWeight;
             cohesionWeights[i] = settings.cohesionWeight;
             separateWeights[i] = settings.separateWeight;
-            steerForces[i] = settings.maxSteerForce * Time.deltaTime * 60;
+            steerForces[i] = settings.maxSteerForce;
             maxSpeeds[i] = settings.maxSpeed;
         }
     }
@@ -337,10 +264,8 @@ class SchoolController : MonoBehaviour
         };
 
         // FIXME: This can probably be higher (8 seems good).
-        var batchCount = settings.parallelJobBatchCount;
-        var handle = accelerationsJob.Schedule(entities.Length, batchCount);
-
-        // Once the job is completed, apply accelerations to each entity then dispos of data.
+        var handle = accelerationsJob.Schedule(entities.Length, settings.parallelJobBatchCount);
+        // Once the job is completed, apply accelerations to each entity then dispose of data.
         handle.Complete();
         for (var i = 0; i < entities.Length; i++)
         {
@@ -351,17 +276,23 @@ class SchoolController : MonoBehaviour
             {
                 var targetOffset = new float3(entities[i].target.position) - entities[i].position;
                 var targetForce = settings.targetWeight * SchoolMath.SteerTowards(
-                    velocities[i], targetOffset, steerForce, maxSpeed);
+                    velocities[i], targetOffset, steerForce * 1000, maxSpeed);
                 acceleration += targetForce;
             }
             entities[i].acceleration = acceleration;
-            ApplyAcceleration(i);
+            // ApplyAcceleration(i);
 
             // Check if collisions should be calculated, skip RayCast if unneeded.
             if (!settings.enableCollisions)
+            {
+                ApplyAcceleration(i);
                 continue;
+            }
             else if (settings.skipCollisionFrames && (i + frameCount) % settings.collisionFrameSkips != 0)
+            {
+                ApplyAcceleration(i);
                 continue;
+            }
             // Collision checking is enabled, so compute and apply the collision force.
             ApplyCollisionAvoidance(i);
             ApplyAcceleration(i);

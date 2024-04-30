@@ -15,6 +15,7 @@ MonoBehaviour:
   minSpeed: 4
   maxSpeed: 8
   maxSteerForce: 9
+  maxTurnSpeed: 150
   perceptionRadius: 2.5
   perceptionAngle: 180
   avoidanceRadius: 1.75
@@ -23,14 +24,13 @@ MonoBehaviour:
   separateWeight: 2.5
   targetWeight: 0.3
   enableCollisions: 1
-  avoidCollisionWeight: 30
+  avoidCollisionWeight: 20
   skipCollisionFrames: 1
   collisionFrameSkips: 3
   collisionMask:
     serializedVersion: 2
     m_Bits: 8
-  collisionCheckDistance: 4
+  collisionCheckDistance: 5
   collisionCheckRadius: 0
-  enableParallelJobs: 1
   parallelJobBatchCount: 8
   useMeshInstancing: 1
